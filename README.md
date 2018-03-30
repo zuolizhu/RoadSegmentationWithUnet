@@ -1,5 +1,5 @@
 # RoadSegmentationWithUnet
-1. prepare images and masks for KITTI (prepareImageMask.py)
+## 1. prepare images and masks for KITTI (prepareImageMask.py)
 original training images and masks are not ready for training for 3 reasons:
 a. Samples are RGB images, however, the sizes (row, cols) are not the same. They need to be resized
     into the same dimension.
