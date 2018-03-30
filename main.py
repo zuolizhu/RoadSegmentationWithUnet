@@ -7,7 +7,7 @@ img_rows = 375
 img_cols = 1242
 image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_image'
 mask_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_mask'
-
+batch_size = 16
 data_gen_args = dict(featurewise_center=True,
                      featurewise_std_normalization=True,
                      width_shift_range=0.1,
@@ -26,6 +26,7 @@ seed = 1
 
 image_generator = image_datagen.flow_from_directory(
     directory = image_path,
+    batch_size = batch_size,
     target_size=(img_rows, img_cols),
      color_mode='rgb',
     class_mode=None,
@@ -33,6 +34,7 @@ image_generator = image_datagen.flow_from_directory(
 
 mask_generator = mask_datagen.flow_from_directory(
     mask_path,
+    batch_size = batch_size,
     target_size=(img_rows, img_cols),
     color_mode='grayscale',
     class_mode=None,
