@@ -4,9 +4,19 @@ import numpy as np
 import glob
 import os
 import matplotlib.pyplot as plt
+################### Pad images
+def padImg(img, size=(384, 1248)):
+    if len(img.shape)==3: 
+        newImg = np.zeros(list(size)+[3], dtype=np.uint8)
+        newImg[4:4+img.shape[0],4:4+img.shape[1],:] = img
+    else: 
+        newImg = np.zeros(size, dtype=np.unit8)
+        newImg[4:4+img.shape[0],4:img.shape[1]] = img
+    return newImg
+
+
 #######################
 #Process mask, original mask are rgb image, needs to convert it into 1 channel
-
 def processMask(mask):
     '''
     convert RGB image to masks, KITTI dataset only
@@ -22,14 +32,13 @@ def processMask(mask):
     return mask1
 
 
-from getFiles import getImageMask
+
 savePath_msk ='/home/xinyang/Documents/roadSeg/data/data_road/training/processed_mask/processed masks'
 savePath_img ='/home/xinyang/Documents/roadSeg/data/data_road/training/processed_image/processed_image'
 ### pre_process the images
 
 ############################ get images and masks from files and resize it to target
-
-def getImageMask(df, ind, size=(1242, 375)):
+def getImageMask(df, ind, size=(384, 1248)):
     '''get the name and picture from paths
     Input
     ----------
@@ -51,12 +60,12 @@ def getImageMask(df, ind, size=(1242, 375)):
     img = cv2.imread(img_path,1)
     img_size=np.shape(img)
     if size != img_size[0:2]:
-        img = cv2.resize(img, size);
+        img = padImg(img, size);
     
     msk = cv2.imread(mask_path,1)    
     msk_size = np.shape(msk)
     if size != msk_size[0:2]:
-        msk = cv2.resize(msk, size);
+        msk = padImg(msk, size);
         
     return img_name, img, mask_name, msk
 #################################################
@@ -68,7 +77,7 @@ therefore, obtain the first channel (pixle value range 0-255) in processMask() f
 and export the images and masks into image_path, and mask_path in the following function.
 '''
 
-
+########## main function
 
 image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/original_image'
 mask_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/original_masks'
@@ -83,7 +92,7 @@ name_dict = {'image_name': image_names, 'image_path':images,
 df = pd.DataFrame(name_dict)
 
 for idx in range(df.shape[0]):
-    img_name, img, msk_name, msk = getImageMask(df, idx)
+    img_name, img, msk_name, msk = getImageMask(df, idx, size=(384, 1248))
     msk2= processMask(msk)
     cv2.imwrite(os.path.join(savePath_msk, msk_name), msk2)
     cv2.imwrite(os.path.join(savePath_img, img_name), img)

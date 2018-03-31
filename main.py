@@ -1,69 +1,60 @@
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
-import cv2
-############################## Get data generator ready
-# input image size
-img_rows = 375
-img_cols = 1242
+from generator import trainGenerate
+from unetModel import getUNet
+from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from keras.optimizers import RMSprop
+from functools import partial
+import math
+import os 
+os.environ['CUDA_VISIBLE_DEVICES']='0'
+
+def step_decay(epoch, lr=0.1):
+	initial_lrate = lr
+	drop = 0.5
+	epochs_drop = 10.0
+	lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
+	return lrate
+
+# get data generator
+img_rows = 384
+img_cols = 1248
 image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_image'
 mask_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_mask'
-batch_size = 16
-data_gen_args = dict(featurewise_center=True,
-                     featurewise_std_normalization=True,
-                     width_shift_range=0.1,
+batch_size = 4
+epochs=100
+lr=0.001
+input_shape=(img_rows, img_cols, 3)
+
+data_gen_args = dict(width_shift_range=0.1,
                      height_shift_range=0.1,
                      zoom_range=0.2,
                      horizontal_flip=True,
                      validation_split=0.2,
                      rescale=1./255)
-image_datagen = ImageDataGenerator(**data_gen_args)
-mask_datagen = ImageDataGenerator(**data_gen_args)
 
-# Provide the same seed and keyword arguments to the fit and flow methods
-seed = 1
-#image_datagen.fit(images, augment=True, seed=seed)
-#mask_datagen.fit(masks, augment=True, seed=seed)
+train_generator = trainGenerate(img_path=image_path, 
+                                msk_path=mask_path,
+                                gen_args=data_gen_args,
+                                batch_size=batch_size,
+                                imgSize=(img_rows, img_cols))
 
-image_generator = image_datagen.flow_from_directory(
-    directory = image_path,
-    batch_size = batch_size,
-    target_size=(img_rows, img_cols),
-     color_mode='rgb',
-    class_mode=None,
-    seed=seed)
-
-mask_generator = mask_datagen.flow_from_directory(
-    mask_path,
-    batch_size = batch_size,
-    target_size=(img_rows, img_cols),
-    color_mode='grayscale',
-    class_mode=None,
-    seed=seed)
-train_generator = zip(image_generator, mask_generator)
-
-######################### test generator (not done yet)
-'''testImg_datagen = ImageDataGenerator(featurewise_center=True,
-                     featurewise_std_normalization=True)
-testMsk_datagen = ImageDataGenerator(featurewise_center=True,
-                     featurewise_std_normalization=True)
-testImg_generator = image_datagen.flow_from_directory(
-    'data/images',
-    class_mode=None,
-    seed=seed)
-testMsk_generator = image_datagen.flow_from_directory(
-    'data/images',
-    class_mode=None,
-    seed=seed)'''
-########################
-############################### end of data generator
 
 ######################## get Model ready
-from RoadSeg_model import unet1
-# combine generators into one which yields image and masks
+model = getUNet(input_shape=input_shape,
+                lr=lr,
+                loss='binary_crossentropy',
+                metrics=['accuracy'],
+                num_classes=1)
 
-model=unet1(img_rows, img_cols)
-model.compile(optimizer=Adam(lr=1e-4), 
-              loss=IOU_calc_loss, metrics=[IOU_calc])
-model.fit_generator(
-    train_generator,
-    epochs=50)
+callbacks = [LearningRateScheduler(partial(step_decay, lr=lr)),
+             ModelCheckpoint(monitor = 'val_loss',
+                             filepath='weights/best_weights.hdf5',
+                             save_best_only = True,
+                             save_weights_only = True)]
+
+model.fit_generator(generator=train_generator,
+                    epochs = epochs,
+                    steps_per_epoch=int(289*0.8/batch_size),
+                    callbacks=callbacks)
+
