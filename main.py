@@ -28,8 +28,10 @@ val_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_im
 val_mask_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_mask'
 val_batch_size = 2
 epochs=100
-lr=0.001
+lr=0.0001
 input_shape=(img_rows, img_cols, 3)
+log_save_path = 'run_logs/run1.csv'
+weight_save_path = 'weights/bestWeights_run1.hdf5'
 
 data_train_gen_args = dict(width_shift_range=0.2,
                      height_shift_range=0.2,
@@ -59,9 +61,9 @@ model = getUNet(input_shape=input_shape,
                 num_classes=1)
 
 callbacks = [LearningRateScheduler(partial(step_decay, lr=lr)),
-             CSVLogger('log_run1.csv', append=True, separator=';'),
+             CSVLogger(log_save_path, append=True, separator=';'),
              ModelCheckpoint(monitor = 'val_loss',
-                             filepath='weights/bestWeights_run1.hdf5',
+                             filepath=weight_save_path,
                              save_best_only = True,
                              save_weights_only = True)]
 
