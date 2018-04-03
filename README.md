@@ -20,5 +20,6 @@ Input needed are the folder of the images, masks and the ones to save processed 
 3. Learning rate decay is also applied. For each 10 epocks, the learning rate decays 50%. 
 4. The training process is stored by CSVLogger in folder "run_logs", and the weights of best 'val_loss' is stored in the folder "weights".
 	
-
+## 3. Model prediction
+Initial prediction results ![RoadSegmentation](images/initial_result.png)
 
