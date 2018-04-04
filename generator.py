@@ -74,7 +74,7 @@ def valGenerate(img_path, msk_path, gen_args, batch_size=8, imgSize=(384, 1248))
 ######################### test generator (not done yet)
 
 
-def testGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248)):
+def testDataGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248)):
     img_rows = imgSize[0]
     img_cols = imgSize[1]
     image_path = img_path
@@ -94,3 +94,22 @@ def testGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248)):
     seed=seed)
     return image_generator
 ########################
+def testTruthGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248)):
+    img_rows = imgSize[0]
+    img_cols = imgSize[1]
+    image_path = img_path
+
+    data_gen_args = gen_args
+    
+    image_datagen = ImageDataGenerator(**data_gen_args) 
+
+    seed = 3
+    image_generator = image_datagen.flow_from_directory(
+    directory = image_path,
+    batch_size = batch_size,
+    target_size=(img_rows, img_cols),
+    color_mode='grayscale',
+    class_mode=None,
+    shuffle=True,
+    seed=seed)
+    return image_generator

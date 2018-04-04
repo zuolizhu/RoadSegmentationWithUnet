@@ -31,11 +31,44 @@ def plotImgMsk(img, msk, threshold=0.5):
     img_masked = color.hsv2rgb(img_hsv)
     # Display the output
     
+    #ax0.imshow(img, cmap=plt.cm.gray) 
+    #ax1.imshow(color_mask)
+    plt.imshow(img_masked)
+    #plt.figure()
+    plt.show()
+
+def plotPredTruth(truth, pred, threshold=0.5):
+    alpha=0.5
+
+    color_pred = np.zeros(truth.shape[:2]+ (3,))
+    pred[pred>=threshold]=1
+    pred[pred<threshold]=0
+    color_pred[:,:,2] = pred[:,:,0]
+    
+    truth2=np.copy(truth)
+    truth2[truth2==1] = 2
+    truth2[truth2==0] = 1
+    truth2[truth2==2] = 0
+    color_truth = np.ones(truth.shape[:2]+ (3,))
+    color_truth[:,:,1] = truth2[:,:,0]
+    
+    dst = cv2.addWeighted(color_truth,0.7,color_pred,0.7,0)
+    cv2.imshow('dst',dst)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+    '''color_truth_hsv = color.rgb2hsv(color_truth)
+    color_pred_hsv = color.rgb2hsv(color_pred)
+    
+    color_truth_hsv[..., 0] = color_pred_hsv[..., 0] * alpha
+    color_truth_hsv[..., 1] = color_pred_hsv[..., 1] * alpha
+
+    img_masked = color.hsv2rgb(color_truth_hsv)
+    # Display the output
+    
     #ax0.imshow(img, cmap=plt.cm.gray)
     #ax1.imshow(color_mask)
     plt.imshow(img_masked)
     #plt.figure()
     plt.show()
-    
-img = cv2.imread('/home/xinyang/Documents/roadSeg/data/data_road/training/processed_image/processed_image/um_000000.png')
-msk = cv2.imread('/home/xinyang/Documents/roadSeg/data/data_road/training/processed_mask/processed masks/umm_road_000000.png',0)
+    return color_truth, color_pred'''

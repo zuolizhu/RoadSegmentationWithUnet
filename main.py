@@ -2,11 +2,11 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from keras.callbacks import CSVLogger
 from generator import trainGenerate, valGenerate
-from unetModel import getUNet
+from unetModel import getUNet, getUNetwithBN
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras.optimizers import RMSprop
 from functools import partial
-from lossFunction import dice_coeff, dice_loss, bce_dice_loss
+from lossFunction import dice_coeff, dice_loss, bce_dice_loss, weighted_dice_coeff, weighted_dice_loss
 import math
 import os 
 os.environ['CUDA_VISIBLE_DEVICES']='0'
@@ -54,9 +54,9 @@ val_generator = valGenerate(img_path= val_image_path,
 
 
 ######################## get Model ready
-model = getUNet(input_shape=input_shape,
+model = getUNetwithBN(input_shape=input_shape,
                 lr=lr,
-                loss= bce_dice_loss,
+                loss= weighted_dice_loss,
                 metrics=[dice_coeff],
                 num_classes=1)
 
