@@ -6,9 +6,10 @@ from unetModel import getUNet, getUNetwithBN
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras.optimizers import RMSprop
 from functools import partial
-from lossFunction import dice_coeff, dice_loss, bce_dice_loss, weighted_dice_coeff, weighted_dice_loss
+from lossFunction import dice_coeff, dice_loss, bce_dice_loss, weighted_dice_coeff, weighted_dice_loss, weighted_bce_dice_loss
 import math
 import os 
+from keras.models import load_model
 os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 def step_decay(epoch, lr=0.1):
@@ -30,8 +31,9 @@ val_batch_size = 1
 epochs=100
 lr=0.00001
 input_shape=(img_rows, img_cols, 3)
-log_save_path = 'run_logs/run4.csv'
-weight_save_path = 'weights/bestWeights_run4.hdf5'
+log_save_path = 'run_logs/run5.csv'
+weight_save_path = 'weights/bestWeights_run5.hdf5'
+model_save_path = 'models/partly_trained_run5.h5'
 
 data_train_gen_args = dict(width_shift_range=0.2,
                      height_shift_range=0.2,
@@ -54,9 +56,9 @@ val_generator = valGenerate(img_path= val_image_path,
 
 
 ######################## get Model ready
-model = getUNetwithBN(input_shape=input_shape,
+model = getUNet(input_shape=input_shape,
                 lr=lr,
-                loss= weighted_dice_loss,
+                loss= weighted_bce_dice_loss,
                 metrics=[dice_coeff],
                 num_classes=1)
 
@@ -74,3 +76,5 @@ model.fit_generator(generator=train_generator,
                     validation_data=val_generator,
                     validation_steps=int(30/val_batch_size))
 
+
+model.save(model_save_path)
