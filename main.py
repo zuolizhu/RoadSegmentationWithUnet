@@ -2,11 +2,12 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from keras.callbacks import CSVLogger
 from generator import trainGenerate, valGenerate
-from unetModel import getUNet, getUNetwithBN
+from unetModel import getUNet, getThinnerUNet
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras.optimizers import RMSprop
 from functools import partial
 from lossFunction import dice_coeff, dice_loss, bce_dice_loss, weighted_dice_coeff, weighted_dice_loss, weighted_bce_dice_loss
+from lossFunction import my_dice_loss, my_bce_loss
 import math
 import os 
 from keras.models import load_model
@@ -15,7 +16,7 @@ os.environ['CUDA_VISIBLE_DEVICES']='0'
 def step_decay(epoch, lr=0.1):
 	initial_lrate = lr
 	drop = 0.5
-	epochs_drop = 10.0
+	epochs_drop = 20.0
 	lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
 	return lrate
 
@@ -24,20 +25,23 @@ img_rows = 384
 img_cols = 1248
 train_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_image'
 train_mask_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_mask'
-train_batch_size = 2
+train_batch_size = 4
 val_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_image'
 val_mask_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_mask'
 val_batch_size = 1
 epochs=100
-lr=0.00001
+lr=0.0001
 input_shape=(img_rows, img_cols, 3)
-log_save_path = 'run_logs/run5.csv'
-weight_save_path = 'weights/bestWeights_run5.hdf5'
-model_save_path = 'models/partly_trained_run5.h5'
+exp_name = 'run8'
+log_save_path = 'run_logs/' + exp_name + '.csv'
+weight_save_path = 'weights/' + exp_name + '.hdf5'
+model_save_path = 'models/' + exp_name + '.h5'
 
-data_train_gen_args = dict(width_shift_range=0.2,
-                     height_shift_range=0.2,
-                     zoom_range=0.2,
+data_train_gen_args = dict(width_shift_range=0.1,
+                     height_shift_range=0.1,
+                     zoom_range=0.1,
+                     fill_mode='constant', 
+                     cval=0.0,
                      horizontal_flip=True,
                      rescale=1./255)
 
@@ -56,10 +60,10 @@ val_generator = valGenerate(img_path= val_image_path,
 
 
 ######################## get Model ready
-model = getUNet(input_shape=input_shape,
+model = getThinnerUNet(input_shape=input_shape,
                 lr=lr,
                 loss= weighted_bce_dice_loss,
-                metrics=[dice_coeff],
+                metrics=[dice_coeff, my_dice_loss, my_bce_loss],
                 num_classes=1)
 
 callbacks = [LearningRateScheduler(partial(step_decay, lr=lr)),

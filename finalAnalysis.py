@@ -29,7 +29,7 @@ model = getUNet(input_shape=input_shape,
                 loss= bce_dice_loss,
                 metrics=[dice_coeff],
                 num_classes=1)
-model.load_weights('weights/bestWeights_run3.hdf5')
+model.load_weights('weights/run_test.hdf5')
 
 
 data_test_gen_args = dict(rescale=1./255)
