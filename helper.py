@@ -1,17 +1,31 @@
 # Helper
+'''
+Helper.py contains functions to for plotting results for analysis and demonstration.
+'''
 import cv2
 from skimage import data, color, io, img_as_float
 import numpy as np
 import matplotlib.pyplot as plt
 
 def showImage(img1, img2):
+    '''
+    Show 2 images at the same time. Used for show images and masks for comparision.
+    '''
     cv2.imshow('image',img1)
     cv2.imshow('image2', img2)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
-def plotImgMsk(img, msk, threshold=0.5):      
+def plotImgMsk(img, msk, threshold=0.5):
+    '''
+    Overlay the mask/predictio on the original image. The original image will be converte 
+    to greyscale for clear demonstratin of the masks.
+    Input:
+        img -- original image, RGB image
+        msk -- mask/prediction, greysacle image
+        threshold -- the probability threshold to make predition to be position
+    '''      
     alpha=0.6
     color_mask = np.zeros(img.shape)
     msk[msk>=threshold]=1
@@ -38,6 +52,13 @@ def plotImgMsk(img, msk, threshold=0.5):
     plt.show()
 
 def plotPredTruth(truth, pred, threshold=0.5):
+    '''
+    Overlay the mask and predition for observe the overlap of predition with ground truth. 
+    Input:
+        truth -- ground truth mask, greyscale image.
+        msk -- prediction, greysacle image
+        threshold -- the probability threshold to make predition to be position
+    '''
     alpha=0.5
 
     color_pred = np.zeros(truth.shape[:2]+ (3,))

@@ -3,6 +3,14 @@ from keras.losses import binary_crossentropy
 
 
 def dice_coeff(y_true, y_pred):
+    '''
+    Calculate the dice (IOU) coefficient of the prediction and ground truth.
+    Input:
+        y_true: ground truth mask
+        y_pred: prediction result
+    Output: 
+        score: dice coefficient
+    '''
     smooth = 1.
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
@@ -12,11 +20,14 @@ def dice_coeff(y_true, y_pred):
 
 
 def dice_loss(y_true, y_pred):
+    # Dice loss = 1 - dice_coefficient 
     loss = 1 - dice_coeff(y_true, y_pred)
     return loss
 
 
 def bce_dice_loss(y_true, y_pred):
+    # combine binary cross entropy loss and dice loss
+    # new loss = BCE_loss - log(dice_coefficient)
     loss = binary_crossentropy(y_true, y_pred) - K.log(dice_coeff(y_true, y_pred))
     return loss
 
@@ -28,6 +39,9 @@ def weighted_dice_coeff(y_true, y_pred, weight):
     return score
 
 def my_dice_loss(y_true, y_pred):
+    '''
+    Metrics to observe the dice loss in  the weighted_dice_loss.
+    '''
     y_true = K.cast(y_true, 'float32')
     y_pred = K.cast(y_pred, 'float32')
     # if we want to get same size of output, kernel size must be odd number
@@ -49,6 +63,9 @@ def my_dice_loss(y_true, y_pred):
     return -K.log(score)
 
 def my_bce_loss(y_true, y_pred):
+    '''
+    Metrics to observe the BCE loss in  the weighted_BCE_loss.
+    '''
     y_true = K.cast(y_true, 'float32')
     y_pred = K.cast(y_pred, 'float32')
     # if we want to get same size of output, kernel size must be odd number
@@ -73,6 +90,10 @@ def my_bce_loss(y_true, y_pred):
     return K.sum(loss) / K.sum(weight)
 
 def weighted_dice_loss(y_true, y_pred):
+    '''
+    Weight the dice loss function by the edge of the masks. The edge of 0-1 boarder on the masks will 
+    have 3 times weights than other area.
+    '''
     y_true = K.cast(y_true, 'float32')
     y_pred = K.cast(y_pred, 'float32')
     # if we want to get same size of output, kernel size must be odd number
@@ -89,6 +110,10 @@ def weighted_dice_loss(y_true, y_pred):
     return loss
 
 def weighted_bce_loss(y_true, y_pred, weight):
+    '''
+    Weight the BCE loss function by the edge of the masks. The edge of 0-1 boarder on the masks will 
+    have 3 times weights than other area.
+    '''
     # avoiding overflow
     epsilon = 1e-7
     y_pred = K.clip(y_pred, epsilon, 1. - epsilon)
@@ -101,6 +126,10 @@ def weighted_bce_loss(y_true, y_pred, weight):
 
 
 def weighted_bce_dice_loss(y_true, y_pred):
+    '''
+    Weight the BCE + Dice loss function by the edge of the masks. The edge of 0-1 boarder on the masks will 
+    have 3 times weights than other area.
+    '''
     y_true = K.cast(y_true, 'float32')
     y_pred = K.cast(y_pred, 'float32')
     # if we want to get same size of output, kernel size must be odd number

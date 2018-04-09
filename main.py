@@ -13,6 +13,7 @@ import os
 from keras.models import load_model
 os.environ['CUDA_VISIBLE_DEVICES']='0'
 
+# Weight decay function
 def step_decay(epoch, lr=0.1):
 	initial_lrate = lr
 	drop = 0.5
@@ -20,7 +21,7 @@ def step_decay(epoch, lr=0.1):
 	lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
 	return lrate
 
-# get data generator
+# input parameters
 img_rows = 384
 img_cols = 1248
 train_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/processed_image'
@@ -37,6 +38,7 @@ log_save_path = 'run_logs/' + exp_name + '.csv'
 weight_save_path = 'weights/' + exp_name + '.hdf5'
 model_save_path = 'models/' + exp_name + '.h5'
 
+# get training data generator
 data_train_gen_args = dict(width_shift_range=0.1,
                      height_shift_range=0.1,
                      zoom_range=0.1,
@@ -51,6 +53,7 @@ train_generator = trainGenerate(img_path=train_image_path,
                                 batch_size=train_batch_size,
                                 imgSize=(img_rows, img_cols))
 
+# get validation data generator
 data_val_gen_args = dict(rescale=1./255)
 val_generator = valGenerate(img_path= val_image_path,
                             msk_path = val_mask_path,
@@ -62,8 +65,8 @@ val_generator = valGenerate(img_path= val_image_path,
 ######################## get Model ready
 model = getThinnerUNet(input_shape=input_shape,
                 lr=lr,
-                loss= weighted_bce_dice_loss,
-                metrics=[dice_coeff, my_dice_loss, my_bce_loss],
+                loss= bce_dice_loss,
+                metrics=[dice_coeff],
                 num_classes=1)
 
 callbacks = [LearningRateScheduler(partial(step_decay, lr=lr)),
@@ -73,6 +76,7 @@ callbacks = [LearningRateScheduler(partial(step_decay, lr=lr)),
                              save_best_only = True,
                              save_weights_only = True)]
 
+# Train model
 model.fit_generator(generator=train_generator,
                     epochs = epochs,
                     steps_per_epoch=int(244/train_batch_size),
@@ -80,5 +84,5 @@ model.fit_generator(generator=train_generator,
                     validation_data=val_generator,
                     validation_steps=int(30/val_batch_size))
 
-
+# Save model
 model.save(model_save_path)
