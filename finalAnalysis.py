@@ -4,7 +4,7 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from keras.callbacks import CSVLogger
 from generator import trainGenerate, valGenerate
-from unetModel import getUNet
+from unetModel import getUNet, getThinnerUNet, getThinnerUNet5Pool
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras.optimizers import RMSprop
 from functools import partial
@@ -12,7 +12,7 @@ from lossFunction import dice_coeff, dice_loss, bce_dice_loss
 import math
 import os 
 from helper import plotImgMsk
-
+os.environ['CUDA_VISIBLE_DEVICES']='0'
 
 test_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_image'
 test_truth_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_mask'
@@ -24,12 +24,12 @@ lr=0.0001
 
 
 
-model = getUNet(input_shape=input_shape,
+model = getThinnerUNet(input_shape=input_shape,
                 lr=lr,
                 loss= bce_dice_loss,
                 metrics=[dice_coeff],
                 num_classes=1)
-model.load_weights('weights/run_test.hdf5')
+model.load_weights('weights/run9_200epcs.hdf5')
 
 
 data_test_gen_args = dict(rescale=1./255)
