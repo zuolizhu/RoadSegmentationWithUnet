@@ -1,0 +1,2 @@
+run14 uses the UNet model with 4 maxpooling layers: getThinnerUNet in unetModel.py
+run16 uses the UNet model with 5 maxpooling layers: getThinnerUNet5Pool in unetModel.py
