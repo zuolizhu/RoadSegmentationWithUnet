@@ -50,8 +50,8 @@ test_truth_generator = testTruthGenerate(test_truth_path,
 ######### Get predictions from images
 images = test_generator[0] 
 truth = test_truth_generator[0]
-predictions = model.predict(images)
-predictions = predBatchPostProcess(predictions, threshold=threshold)
+predictions = model.predict(images)  # predict as probailities
+predictions = predBatchPostProcess(predictions, threshold=threshold) # covnert probability to 0,1
 
 # plot some image
 idx =4
