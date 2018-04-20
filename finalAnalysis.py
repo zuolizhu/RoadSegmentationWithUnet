@@ -24,10 +24,10 @@ img_cols = 1248
 input_shape=(img_rows, img_cols, 3)
 lr=0.0001
 batch_size = 15
-weight_name = 'run14'
+weight_name = 'run16'
 weight_file = 'weights/' + weight_name  + '.hdf5'
 
-model = getThinnerUNet(input_shape=input_shape,
+model = getThinnerUNet5Pool(input_shape=input_shape,
                 lr=lr,
                 loss= bce_dice_loss,
                 metrics=[dice_coeff],
@@ -56,7 +56,7 @@ IOUsummary = pd.DataFrame({'threshold':threshs})
 for item in threshs:
     temp = getAveIOU(test_generator, test_truth_generator, model, threshold=item)
     IOUsummary.loc[IOUsummary['threshold']==item, 'IOU_score'] = temp
-#IOUsummary.to_csv('run14_theshold_IOU.csv')  # save IOU vs threshold in csv file
+IOUsummary.to_csv('run16_theshold_IOU.csv')  # save IOU vs threshold in csv file
 
 ######## given different threshold values for image prediction, find average false positive rate 
     # and true positive rate for plotting ROC curve
@@ -66,4 +66,4 @@ for item in threshs:
     tpr, fpr =  getAveROC(test_generator, test_truth_generator, model, threshold=item)
     ROCsummary.loc[ROCsummary['threshold']==item, 'tpr'] = tpr
     ROCsummary.loc[ROCsummary['threshold']==item, 'fpr'] = fpr
-ROCsummary.to_csv('run14_theshold_ROC.csv') # save ROC curve in csv file
+ROCsummary.to_csv('run16_theshold_ROC.csv') # save ROC curve in csv file

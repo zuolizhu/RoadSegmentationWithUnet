@@ -25,11 +25,11 @@ img_cols = 1248
 input_shape=(img_rows, img_cols, 3)
 lr=0.0001
 batch_size = 15
-weight_name = 'run14'
+weight_name = 'run16'
 weight_file = 'weights/' + weight_name  + '.hdf5'
-threshold = 0.45
+threshold = 0.5
 
-model = getThinnerUNet(input_shape=input_shape,
+model = getThinnerUNet5Pool(input_shape=input_shape,
                 lr=lr,
                 loss= bce_dice_loss,
                 metrics=[dice_coeff],
@@ -48,13 +48,13 @@ test_truth_generator = testTruthGenerate(test_truth_path,
                               imgSize=(img_rows, img_cols))
 
 ######### Get predictions from images
-images = test_generator[0] 
-truth = test_truth_generator[0]
+images = test_generator[2] 
+truth = test_truth_generator[2]
 predictions = model.predict(images)  # predict as probailities
 predictions = predBatchPostProcess(predictions, threshold=threshold) # covnert probability to 0,1
 
 # plot some image
-idx =4
+idx =6
 plotImgMsk(images[idx], predictions[idx])
 plotImgMsk(images[idx], truth[idx])
 

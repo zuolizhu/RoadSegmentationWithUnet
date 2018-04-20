@@ -25,11 +25,11 @@ img_cols = 1248
 input_shape=(img_rows, img_cols, 3)
 lr=0.0001
 batch_size = 18
-weight_name = 'run14'
+weight_name = 'run16'
 weight_file = 'weights/' + weight_name  + '.hdf5'
-threshold = 0.45
+threshold = 0.5
 
-model = getThinnerUNet(input_shape=input_shape,
+model = getThinnerUNet5Pool(input_shape=input_shape,
                 lr=lr,
                 loss= bce_dice_loss,
                 metrics=[dice_coeff],
