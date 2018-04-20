@@ -17,14 +17,14 @@ import pandas as pd
 
 os.environ['CUDA_VISIBLE_DEVICES']='0'
 
-test_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_image'
-test_truth_path = '/home/xinyang/Documents/roadSeg/data/data_road/training/val_mask'
+test_image_path = '/home/xinyang/Documents/roadSeg/data/data_road/testing/roadTestImages_Albany'
+
 
 img_rows = 384
 img_cols = 1248
 input_shape=(img_rows, img_cols, 3)
 lr=0.0001
-batch_size = 15
+batch_size = 18
 weight_name = 'run14'
 weight_file = 'weights/' + weight_name  + '.hdf5'
 threshold = 0.45
@@ -42,22 +42,15 @@ test_generator = testDataGenerate(test_image_path,
                               gen_args=data_test_gen_args,
                               batch_size=batch_size,
                               imgSize=(img_rows, img_cols))
-test_truth_generator = testTruthGenerate(test_truth_path,
-                              gen_args=data_test_gen_args,
-                              batch_size=batch_size,
-                              imgSize=(img_rows, img_cols))
 
 ######### Get predictions from images
 images = test_generator[0] 
-truth = test_truth_generator[0]
 predictions = model.predict(images)
 predictions = predBatchPostProcess(predictions, threshold=threshold)
 
 # plot some image
-idx =4
+idx =16
 plotImgMsk(images[idx], predictions[idx])
-plotImgMsk(images[idx], truth[idx])
 
-showImage(images[idx], truth[idx])
-plotPredTruth(truth[idx], predictions[idx])
+
  

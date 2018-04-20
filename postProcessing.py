@@ -33,5 +33,11 @@ def getAveIOU(test_generator, truth_generator, model, threshold = 0.5):
             break
     return sum(IOUscore)/len(IOUscore)
 
+def predBatchPostProcess(pred, threshold=0.5):
+    for i in range(pred.shape[0]):
+        pred[i] = predPostPorcess(pred[i], threshold=threshold)
+    return pred
+        
+
 ########### calculate AUC for final results
 
