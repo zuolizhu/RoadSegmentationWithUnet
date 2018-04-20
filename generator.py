@@ -133,7 +133,7 @@ def testDataGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248), seed
     seed=seed)
     return image_generator
 ########################
-def testTruthGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248), see=0):
+def testTruthGenerate(img_path, gen_args, batch_size=8, imgSize=(384, 1248), seed=0):
     '''
     Test data generator. Only retrieve the RGB images. 
     Input:

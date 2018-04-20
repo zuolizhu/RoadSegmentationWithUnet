@@ -137,4 +137,4 @@ if __name__ is '__main__':
     model.add(Dense(64))
     
     par = Parallelizer(gpu_list=[1,2])
-model = par.transform(model)
+    model = par.transform(model)

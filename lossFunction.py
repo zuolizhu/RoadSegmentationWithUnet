@@ -1,5 +1,6 @@
 from keras import backend as K
 from keras.losses import binary_crossentropy
+import numpy as np
 
 
 def dice_coeff(y_true, y_pred):
@@ -17,6 +18,9 @@ def dice_coeff(y_true, y_pred):
     intersection = K.sum(y_true_f * y_pred_f)
     score = (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
     return score
+
+
+
 
 
 def dice_loss(y_true, y_pred):

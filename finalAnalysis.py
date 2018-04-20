@@ -45,7 +45,8 @@ test_truth_generator = testTruthGenerate(test_truth_path,
                               batch_size=batch_size,
                               imgSize=(img_rows, img_cols))
 
-'''images = test_generator.next()
+''' Get predictions from images
+images = test_generator.next()
 ground_truth = test_truth_generator.next()
 predictions = model.predict(images)'''
 
