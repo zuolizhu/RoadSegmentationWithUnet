@@ -2,7 +2,7 @@ from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 from keras.callbacks import CSVLogger
 from generator import trainGenerate, valGenerate
-from unetModel import getUNet, getThinnerUNet, getThinnerUNet5Pool
+from unetModel import getUNet, getThinnerUNet, getThinnerUNet5Pool, getThinnerUNet3Pool
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras.optimizers import RMSprop
 from functools import partial
@@ -33,7 +33,7 @@ val_batch_size = 1
 epochs=200
 lr=0.0001
 input_shape=(img_rows, img_cols, 3)
-exp_name = 'run14'
+exp_name = 'run15'
 log_save_path = 'run_logs/' + exp_name + '.csv'
 weight_save_path = 'weights/' + exp_name + '.hdf5'
 model_save_path = 'models/' + exp_name + '.h5'
@@ -63,7 +63,7 @@ val_generator = valGenerate(img_path= val_image_path,
 
 
 ######################## get Model ready
-model = getThinnerUNet(input_shape=input_shape,
+model = getThinnerUNet5Pool(input_shape=input_shape,
                 lr=lr,
                 loss= weighted_bce_dice_loss,
                 metrics=[dice_coeff, my_bce_loss, my_dice_loss],
