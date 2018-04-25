@@ -1,25 +1,83 @@
-# RoadSegmentationWithUnet
-## 1. prepare images and masks for KITTI (prepareImageMask.py)
-original training images and masks are not ready for training for 3 reasons:
-1. Samples are RGB images, however, the sizes (row, cols) are not the same. They need to be resized
-    into the same dimension. The resize uses padding 0s to 1248X384 in size.
-2. Masks are RGB images with 3 channels, only the first channel records the label of road
-    this preprocessing will pick the first channel, and save it as a gray image with values between
-    0-255.
-3. There are more masks than the samples. The masks with 2 different labels, 'road' and 'lane'. 
-    We only used the one with roads for processing in step b. The code in prepareImageMask.py will
-    only pick up th images labeled with 'road' in its file name for preparing the images.
-Input needed are the folder of the images, masks and the ones to save processed images and masks.
+# Road Segmentation with U-net
 
-## 2. Model
-1. The [U-net model](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/) is revised to 
-   use 'same' padding method, which keeps the image size remaining the same. see unetModel.py
-2. We used 'binary_crossentropy' and 'dice' as the loss function respectively.
-   'binary_crossentropy' maximize the pixel-wised classification.
-   'dice' maximize the ![Intersection of Union](https://www.pyimagesearch.com/2016/11/07/intersection-over-union-iou-for-object-detection/)
-3. Learning rate decay is also applied. For each 10 epocks, the learning rate decays 50%. 
-4. The training process is stored by CSVLogger in folder "run_logs", and the weights of best 'val_loss' is stored in the folder "weights".
-	
-## 3. Model prediction
-Initial prediction results ![RoadSegmentation](images/initial_result.png)
+####Overview
+
+The repository includes an application using U-net CNN architecture to segment roads from images captured by vehicle cameras. The U-net concatenate the receptive fields in the convolutional and up-sampling layers. It is a convolutional network architecture that can segment images in a fast and precise manor with relatively less training samples.  
+
+The task for this project is for road segmentation from camera images with Convolutional Neural Networks. 
+
+#### Data preparation and augmentation
+
+This project uses the [KITTI dataset](http://www.cvlibs.net/datasets/kitti/eval_road.php) which includes the 289 training and 290 test images in 3 categories: unban unmarked roads, urban marked roads, and urban multiple marked roads.
+
+Data preparation solves following problems. 1) Size of images are not consistent. 2) Certain sizes are not valid for the U-net architecture. Concatenating the convolutionaized and upsampled layers requires the image size to be divisible by 2^n, where n is the number of MaxPooling layers in the architecture. 3) The masks has 3 channels, and it is converted to the gray scale image with road as 255 and background as 0. All these are fixed by zero padding the original images and masks into 1248X384 spatial resolution.
+
+ Image augmentation includes randomly shifting image < 10% in width and height direction, zoom < 10%, fill the empty space with 0.0, horizontally flip image and rescale the image to 1./255.
+
+The images preparation are carried out with programs in prepareImageMask.py.
+
+![um_000006.png (1248Ã384)](https://raw.githubusercontent.com/EricYang3721/RoadSegmentationWithUnet/master/images/validation/val_image/val_image/um_000006.png)
+
+#### Model
+
+The U-net architecture is firstly introduced for image segmentation on medical images on [MICCAI 2015](https://arxiv.org/abs/1505.04597). The medical images are gray scale images and the images, and the convolutionized layers are cropped to concatenate with the upsample layers. 
+
+In our implementation, we revised the input layer into 3 channels to enable it for RGB images, and the images are padded in the convolutional layers to keep spatial sizes of the feature maps. Also, several models with 3, 4, 5 MaxPoolings, kernel regularization on the convolution kernels are also implemented as in [unetModel.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/unetModel.py). 
+
+![1524444202426](/tmp/1524444202426.png)
+
+
+
+#### Loss functions
+
+Four different loss functions are used for training the model ([lossFunction.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/lossFunction.py)):
+
+1. Binary cross-entropy (BCE): pixel-wised classification
+2. Dice or 1- Intersection of Union (IOU). 
+3. BCE + Dice: as BCE + 1- log(IOU).
+4. Weighted-BCE-DICE: the improve the prediction on the edge of the roads, in calculating the loss function, the weights of pixels close to the edge of the road on ground truth masks are 3 time as those far away from the edges. 
+
+#### Training
+
+The models are trained in [main.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/main.py). Models are trained in 200 epochs, with learning rate decay 0.5 for every 20 epochs. The weights with the best validation IOU scores are save, and the training process are recorded with CSVlogger. 
+
+#### Result analysis 
+
+Performance analysis: 
+
+Functions used evaluating the performance of models are implemented in [postProcessing.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/postProcessing.py), which analyze the IOU score vs prediction threshold, and the ROC curve on the validation data as following. 
+
+![1524445822379](/tmp/1524445822379.png)
+
+Results illustration:
+
+[help.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/helper.py) includes the implementations to show the images for analysis. showImage could plot 2 images at the same time for comparing original images/masks/predictions in different windows. PlotImgMsk overlays the image with mask/prediction result on the same image. To better illustrate the mask/prediction, the original images are converted into gray scale.
+
+![1524446180406](/tmp/1524446180406.png)
+
+plotPredTruth function overlays the prediction results and ground truth mask on the same image for visually comparing the prediction with the ground truth.
+
+![1524446247303](/tmp/1524446247303.png)
+
+
+
+#### Some results
+
+The IOU score achieved on validation results are 0.935.
+
+Results on validation samples:
+
+Simpler task (prediction results):
+
+![1524446622493](/tmp/1524446622493.png)
+
+simpler task (ground truth): 
+
+![1524446658204](/tmp/1524446658204.png)
+
+More complicated prediction results:
+
+![1524446475049](/tmp/1524446475049.png)
+
+![1524446516925](/tmp/1524446516925.png)
 
