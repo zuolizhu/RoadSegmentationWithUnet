@@ -24,7 +24,7 @@ The U-net architecture is firstly introduced for image segmentation on medical i
 
 In our implementation, we revised the input layer into 3 channels to enable it for RGB images, and the images are padded in the convolutional layers to keep spatial sizes of the feature maps. Also, several models with 3, 4, 5 MaxPoolings, kernel regularization on the convolution kernels are also implemented as in [unetModel.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/unetModel.py). 
 
-![1524444202426](/tmp/1524444202426.png)
+![1524444202426](/images/pics/1524444202426.png)
 
 
 
@@ -47,17 +47,17 @@ Performance analysis:
 
 Functions used evaluating the performance of models are implemented in [postProcessing.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/postProcessing.py), which analyze the IOU score vs prediction threshold, and the ROC curve on the validation data as following. 
 
-![1524445822379](/tmp/1524445822379.png)
+![1524445822379](/images/pics/1524445822379.png)
 
 Results illustration:
 
 [help.py](https://github.com/EricYang3721/RoadSegmentationWithUnet/blob/master/helper.py) includes the implementations to show the images for analysis. showImage could plot 2 images at the same time for comparing original images/masks/predictions in different windows. PlotImgMsk overlays the image with mask/prediction result on the same image. To better illustrate the mask/prediction, the original images are converted into gray scale.
 
-![1524446180406](/tmp/1524446180406.png)
+![1524446180406](/images/pics/1524446180406.png)
 
 plotPredTruth function overlays the prediction results and ground truth mask on the same image for visually comparing the prediction with the ground truth.
 
-![1524446247303](/tmp/1524446247303.png)
+![1524446247303](/images/pics/1524446247303.png)
 
 
 
@@ -69,15 +69,15 @@ Results on validation samples:
 
 Simpler task (prediction results):
 
-![1524446622493](/tmp/1524446622493.png)
+![1524446622493](/images/pics/1524446622493.png)
 
 simpler task (ground truth): 
 
-![1524446658204](/tmp/1524446658204.png)
+![1524446658204](/images/pics/1524446658204.png)
 
 More complicated prediction results:
 
-![1524446475049](/tmp/1524446475049.png)
+![1524446475049](/images/pics/1524446475049.png)
 
-![1524446516925](/tmp/1524446516925.png)
+![1524446516925](/images/pics/1524446516925.png)
 
